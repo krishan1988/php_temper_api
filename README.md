@@ -4,7 +4,7 @@ Php lumen with Clean architecure used for develop the end points
 Setup Instruction
  -  Import Database from given mysql file (inside th database folder)
  -  Copy .example.env file to .env file and conifgure with your database and other configurations
- -  Composer update using "composer update" command.
+  - Add mysql file to your database (datase/temper.sql)
  -  Run the below command in the command promt
  
       - Composer update using "composer update" command
@@ -12,4 +12,6 @@ Setup Instruction
       
   API End Points
   - {Base URL}/v1/graph
+ 
+  
   
