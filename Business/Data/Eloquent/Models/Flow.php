@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: User
- * Date: 8/7/2018
- * Time: 9:22 PM
- */
 
 namespace Business\Data\Eloquent\Models;
 

@@ -21,7 +21,7 @@ $router->group(['prefix' => 'v1'], function () use ($router)
 
     $router->group(['prefix' => 'auth'], function () use ($router)
     {
-        $router->post('login', 'AuthController@login');
+        $router->post('login', 'AuthController@authenticateByPassword');
 
         /*$router->group(['middleware' => App\Http\Middleware\AuthMiddleware::class], function () use ($router)
         {
@@ -36,11 +36,11 @@ $router->group(['prefix' => 'v1'], function () use ($router)
 
     $router->group(['prefix' => 'graph'], function () use ($router) {
 
-        $router->get('/', 'OnboardFlowController@createGraph');
 
-        //$router->group(['middleware' => App\Http\Middleware\AuthMiddleware::class], function () use ($router) {
+        $router->group(['middleware' => App\Http\Middleware\AuthMiddleware::class], function () use ($router) {
 
-        // });
+            $router->get('/', 'OnboardFlowController@createGraph');
+         });
 
     });
 

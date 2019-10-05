@@ -1,71 +1,39 @@
-<?php declare(strict_types = 1);
+<?php
 
 namespace Business\Domain\UseCases\Authenticator;
 
-use Business\Domain\Boundary\Repositories\PeopleRepositoryInterface as UserRepository;
-use Business\Domain\Boundary\Globals\Session;
-use Business\Domain\Boundary\Adapters\TokenAdapter;
+use Business\Domain\Boundary\Repositories\UserRepositoryInterface as UserRepository;
 use Business\Domain\Boundary\Adapters\HashAdapter;
 use Business\Domain\Entities\User;
-use Business\Domain\Boundary\Repositories\AuthTokenRepositoryInterface as AuthTokenRepository;
-use Business\Adapters\Hash\Bcrypt\BcryptAdapter;
 
 class Authenticator
 {
-    /**
-     * @var TokenAdapter
-     */
-    private $tokenAdapter;
-
+ 
     /**
      * @var HashAdapter
      */
     private $hashAdapter;
 
     /**
-     * @var Session
-     */
-    private $session;
-
-    /**
-     * @var AuthTokensRepository
-     */
-    private $authTokenRepository;
-
-    /**
      * @var UserRepository
      */
     private $userRepository;
-    /**
-     * @var BcryptAdapter
-     */
-    private $bcryptAdapter;
+  
 
 
     /**
      * Authenticator constructor.
      *
-     * @param TokenAdapter $tokenAdapter
-     * @param HashAdapter $hashAdapter
-     * @param Session $session
-     * @param AuthTokenRepository $authTokenRepository
      * @param UserRepository $userRepository
      * @param BcryptAdapter $bcryptAdapter
      */
-    public function __construct(TokenAdapter $tokenAdapter,
-                                HashAdapter $hashAdapter,
-                                Session $session,
-                                AuthTokenRepository $authTokenRepository,
-                                UserRepository $userRepository,
-                                BcryptAdapter $bcryptAdapter
+    public function __construct(HashAdapter $hashAdapter,
+                                UserRepository $userRepository
+                        
     )
     {
-        $this->tokenAdapter = $tokenAdapter;
         $this->hashAdapter = $hashAdapter;
-        $this->session = $session;
-        $this->authTokenRepository = $authTokenRepository;
         $this->userRepository = $userRepository;
-        $this->bcryptAdapter = $bcryptAdapter;
     }
 
 
@@ -76,20 +44,15 @@ class Authenticator
      * @return string
      * @throws AuthenticatorException
      */
-    public function login(array $credentials) : string
+    public function login(string $username, string $password) : string
     {
-        $user = $this->userRepository->getUser($credentials);
+        $user = $this->userRepository->getUser($username,$password);
 
-        $password = trim($credentials['password']);
-        $passwordHash = $user->password;
 
-        //if($this->bcryptAdapter->verify($password, $passwordHash)){ // not working
+        if($user = 1){
 
-        if(md5($password) === $passwordHash){
-
-            $this->validateUser($user);
-            $token = $this->createToken($user);
-            $this->persistToken($token);
+            $token = $this->createToken($user,$username);
+        
 
         }else{
              AuthenticatorException::invalidCredentials();
@@ -104,26 +67,24 @@ class Authenticator
      */
     public function logout() : void
     {
-        $this->authTokenRepository->deleteToken($this->session->getUserId(),
-                                                $this->session->getTokenId());
+       // $this->authTokenRepository->deleteToken($this->session->getUserId(),
+                                               // $this->session->getTokenId());
     }
 
 
     /**
      * Create the token.
      *
-     * @param User $user
      * @return string
      */
-    private function createToken(User $user) : string
+    private function createToken(int $user,string $username) : string
     {
-        $id = $user->id;
-        $payload = [
-            "name" => $user->name,
-            "role" => $user->role,
-        ];
 
-        return $this->tokenAdapter->createToken($id, $payload);
+
+        $key =  random_int(10, 9000000);
+
+         $user = $this->userRepository->updateToken($username,$key);
+         return $key ;
     }
 
 
@@ -134,9 +95,9 @@ class Authenticator
      */
     private function persistToken(string $token) : void
     {
-        $tokenData = $this->tokenAdapter->decodeToken($token);
+        //$tokenData = $this->tokenAdapter->decodeToken($token);
 
-        $this->authTokenRepository->saveToken($tokenData['sub'], $tokenData['jti'], $token);
+       // $this->authTokenRepository->saveToken($tokenData['sub'], $tokenData['jti'], $token);
 
         return;
     }

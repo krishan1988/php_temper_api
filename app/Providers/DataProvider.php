@@ -16,6 +16,11 @@ class DataProvider extends ServiceProvider
             \Business\Data\Eloquent\Repositories\MySQL\FlowRepository::class
         );
 
+         $this->app->bind(
+            \Business\Domain\Boundary\Repositories\UserRepositoryInterface::class,
+            \Business\Data\Eloquent\Repositories\MySQL\UserRepository::class
+        );
+
     }
 
 }

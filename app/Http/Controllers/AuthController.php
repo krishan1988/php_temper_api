@@ -12,11 +12,6 @@ use Business\Domain\UseCases\Authenticator\Authenticator;
 class AuthController extends Controller
 {
     /**
-     * @var RestHandler
-     */
-    private $restHandler;
-
-    /**
      * @var Authenticator
      */
     private $authenticator;
@@ -24,15 +19,12 @@ class AuthController extends Controller
     /**
      * AuthController constructor.
      *
-     * @param RestHandler $restHandler
      * @param Authenticator $authenticator
-     * @param DeviceInfoUpdater $deviceInfoUpdater
      */
-    public function __construct(RestHandler $restHandler,
-                                Authenticator $authenticator
+    public function __construct(
+                    Authenticator $authenticator
     )
     {
-        $this->restHandler = $restHandler;
         $this->authenticator = $authenticator;
     }
 
@@ -43,11 +35,10 @@ class AuthController extends Controller
      * @param \Illuminate\Http\Request $request
      *
      * @return \Illuminate\Http\Response
-     * @throws \Passenger\Domain\UseCases\Authenticator\AuthenticatorException
-     * @throws \Pickme\Lib\RestHandler\Exception\RestHandlerException
      */
-    public function authenticateByPassword(Request $request) : Response
+    public function authenticateByPassword(Request $request)
     {
+
         // Get Data
         $arrData = $request->only([
             'user.name',
@@ -56,27 +47,20 @@ class AuthController extends Controller
 
         // Validation
         $this->validate($request, [
-            'user.id'       => 'required|numeric',
+            'user.name'       => 'required|string',
             'user.password' => 'required|string'
         ]);
 
+
         // Authenticate
-        $token = $this->authenticator->authenticateByPassword(
+        $token = $this->authenticator->login(
             (string) $arrData['user']['name'],
             (string) $arrData['user']['password']
         );
+        $code["code"] =$token;
 
-    var_dump(expression)
-        return $this->restHandler->toItem(
-            [
-                'auth'      => $token['auth'],
-                'passenger' => $token['passenger'],
-            ]
-        )->withMeta(
-            ['code' => $token['code'], 'message' => $token['message']]
-        )->toJson(
-            Response::HTTP_OK
-        );
+        return json_encode($code);
+
     }
 
 
@@ -86,9 +70,6 @@ class AuthController extends Controller
      * @param \Illuminate\Http\Request $request
      *
      * @return \Illuminate\Http\Response
-     * @throws \Passenger\Domain\UseCases\Authenticator\AuthenticatorException
-     * @throws \Passenger\Domain\UseCases\OtpVerifier\OtpVerifierException
-     * @throws \Pickme\Lib\RestHandler\Exception\RestHandlerException
      */
     public function authenticateByPasscode(Request $request) : Response
     {
@@ -152,13 +133,12 @@ class AuthController extends Controller
 
 
     /**
-     * Generate Token By Passenger Id
+     * Generate Token
      *
      * @param int                      $passengerId
      * @param \Illuminate\Http\Request $request
      *
      * @return \Illuminate\Http\Response
-     * @throws \Pickme\Lib\RestHandler\Exception\RestHandlerException
      */
     public function generateTokenByPassengerId(int $passengerId, Request $request) : Response
     {
@@ -186,8 +166,6 @@ class AuthController extends Controller
      * @param \Illuminate\Http\Request $request
      *
      * @return \Illuminate\Http\Response
-     * @throws \Passenger\Domain\UseCases\Authenticator\AuthenticatorException
-     * @throws \Pickme\Lib\RestHandler\Exception\RestHandlerException
      */
     public function refresh(Request $request) : Response
     {
